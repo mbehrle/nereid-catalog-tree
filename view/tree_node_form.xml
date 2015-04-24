@@ -16,6 +16,8 @@
     <field name="active" />
     <label name="display" />
     <field name="display" />
+    <label name="template" />
+    <field name="template" />
     <notebook colspan="4">
         <page string="Children" id="children">
             <field name="children" />
