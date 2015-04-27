@@ -104,6 +104,9 @@ class Node(ModelSQL, ModelView):
         ('product.product', 'Product Variants'),
         ('product.template', 'Product Templates'),
     ], 'Display', required=True)
+    template = fields.Selection(
+        'get_template', 'Template', required=True
+    )
 
     @classmethod
     def __setup__(cls):
@@ -130,6 +133,14 @@ class Node(ModelSQL, ModelView):
             return self.parent.rec_name + ' / ' + self.name
         return self.name
 
+    @classmethod
+    def get_template(cls):
+        """
+        Return templates available for node.
+        Downstream module can add new templates
+        """
+        return [('catalog/node.html', 'catalog/node.html')]
+
     @staticmethod
     def default_left():
         return 0
@@ -141,6 +152,10 @@ class Node(ModelSQL, ModelView):
     @staticmethod
     def default_products_per_page():
         return 10
+
+    @staticmethod
+    def default_template():
+        return 'catalog/node.html'
 
     def _get_products(self):
         """
@@ -262,7 +277,7 @@ class Node(ModelSQL, ModelView):
         )
 
         return render_template(
-            'catalog/node.html', products=products, node=self
+            self.template, products=products, node=self
         )
 
     def get_image_preview(self, name=None):
