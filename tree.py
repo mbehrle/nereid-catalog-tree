@@ -358,6 +358,15 @@ class Node(ModelSQL, ModelView):
             'link': self.get_absolute_url(),
         }
 
+    def get_children(self, max_depth):
+        """
+        Return serialized menu_item for current treenode
+        """
+        return [
+            child.get_menu_item(max_depth=max_depth - 1)
+            for child in self.children
+        ]
+
 
 class ProductNodeRelationship(ModelSQL, ModelView):
     """
