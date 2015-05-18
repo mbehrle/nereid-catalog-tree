@@ -356,6 +356,7 @@ class Node(ModelSQL, ModelView):
             'record': self,
             'title': self.name,
             'link': self.get_absolute_url(),
+            'image': self.image,
         }
 
     def get_children(self, max_depth):
