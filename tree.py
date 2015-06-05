@@ -356,6 +356,7 @@ class Node(ModelSQL, ModelView):
             'record': self,
             'title': self.name,
             'link': self.get_absolute_url(),
+            'image': self.image,
         }
 
     def get_children(self, max_depth):
@@ -377,10 +378,6 @@ class ProductNodeRelationship(ModelSQL, ModelView):
 
     product = fields.Many2One(
         'product.product', 'Product',
-        domain=[
-            ('displayed_on_eshop', '=', True),
-            ('template.active', '=', True),
-        ],
         ondelete='CASCADE', select=True, required=True,
     )
     node = fields.Many2One(
