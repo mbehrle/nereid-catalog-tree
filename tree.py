@@ -378,10 +378,6 @@ class ProductNodeRelationship(ModelSQL, ModelView):
 
     product = fields.Many2One(
         'product.product', 'Product',
-        domain=[
-            ('displayed_on_eshop', '=', True),
-            ('template.active', '=', True),
-        ],
         ondelete='CASCADE', select=True, required=True,
     )
     node = fields.Many2One(
