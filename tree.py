@@ -343,31 +343,6 @@ class Node(ModelSQL, ModelView):
             slug=self.slug, **kwargs
         )
 
-    def get_menu_item(self, max_depth):
-        """
-        Return dictionary with serialized node for menu item
-        {
-            title: <display name>,
-            link: <url>,
-            record: <instance of record> # if type_ is `record`
-        }
-        """
-        return {
-            'record': self,
-            'title': self.name,
-            'link': self.get_absolute_url(),
-            'image': self.image,
-        }
-
-    def get_children(self, max_depth):
-        """
-        Return serialized menu_item for current treenode
-        """
-        return [
-            child.get_menu_item(max_depth=max_depth - 1)
-            for child in self.children
-        ]
-
 
 class ProductNodeRelationship(ModelSQL, ModelView):
     """
