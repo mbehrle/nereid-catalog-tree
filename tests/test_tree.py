@@ -626,28 +626,6 @@ class TestTree(NereidTestCase):
                 self.assertTrue(xml.tag.endswith('urlset'))
                 self.assertEqual(len(xml.getchildren()), 2)
 
-    def test_0080_node_menu_items(self):
-        """
-        Test to return record of tree node
-        """
-        Node = POOL.get('product.tree_node')
-
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            app = self.get_app()
-
-            node, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'parent': self.default_node,
-            }])
-
-            with app.test_request_context('/'):
-                rv = node.get_menu_item(max_depth=10)
-
-            self.assertEqual(rv['title'], u'Node1')
-
     def test_0090_product_sequence(self):
         """
         Ensure that the products are displayed according to the sequence
