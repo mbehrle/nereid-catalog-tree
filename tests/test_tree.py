@@ -5,8 +5,7 @@ from itertools import chain
 
 from lxml import objectify
 import trytond.tests.test_tryton
-from trytond.tests.test_tryton import POOL, USER, DB_NAME, CONTEXT, \
-    test_view, test_depends
+from trytond.tests.test_tryton import POOL, USER, DB_NAME, CONTEXT
 from nereid.testing import NereidTestCase
 from trytond.transaction import Transaction
 from trytond.exceptions import UserError
@@ -92,18 +91,6 @@ class TestTree(NereidTestCase):
             '{{ make_tree_crumbs(node=node)|join(", ", attribute="1") }}',
             'product.jinja': "{{ node and node.name or 'no-node' }}",
         }
-
-    def test_0005_test_view(self):
-        """
-        Test the views
-        """
-        test_view('nereid_catalog_tree')
-
-    def test_007_test_depends(self):
-        """
-        The Depends
-        """
-        test_depends()
 
     def test_0010_create_product_node_in_tree(self):
         """
