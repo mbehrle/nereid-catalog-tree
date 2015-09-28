@@ -1,13 +1,4 @@
 # -*- coding: utf-8 -*-
-'''
-    Nereid Catalog Tree
-
-    Products catalogue on a tree
-
-    :copyright: (c) 2013-2014 by Openlabs Technologies & Consulting (P) Ltd.
-    :license: GPLv3, see LICENSE for more details
-
-'''
 from werkzeug.exceptions import NotFound
 from nereid import abort, render_template, route, url_for, request
 from nereid.helpers import slugify, context_processor
