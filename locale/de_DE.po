@@ -1,4 +1,4 @@
-# 
+#
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
@@ -9,10 +9,6 @@ msgstr "Sonderartikel"
 msgctxt "field:nereid.website,latest_products_node:"
 msgid "Latest Products Node"
 msgstr "Neueste Artikel"
-
-msgctxt "field:nereid.website,root_tree_node:"
-msgid "Root Tree Node"
-msgstr "Wurzelknotenpunkt"
 
 msgctxt "field:nereid.website,upcoming_products_node:"
 msgid "Upcoming Products Node"
@@ -77,6 +73,10 @@ msgstr "Artikel"
 msgctxt "field:product.product-product.tree_node,rec_name:"
 msgid "Name"
 msgstr "Name"
+
+msgctxt "field:product.product-product.tree_node,sequence:"
+msgid "Sequence"
+msgstr "Reihenfolge"
 
 msgctxt "field:product.product-product.tree_node,write_date:"
 msgid "Write Date"
@@ -157,6 +157,10 @@ msgstr "Reihenfolge"
 msgctxt "field:product.tree_node,slug:"
 msgid "Slug"
 msgstr "Slug"
+
+msgctxt "field:product.tree_node,template:"
+msgid "Template"
+msgstr "Artikel"
 
 msgctxt "field:product.tree_node,type_:"
 msgid "Type"
