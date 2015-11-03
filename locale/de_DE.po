@@ -8,7 +8,7 @@ msgstr "Sonderartikel"
 
 msgctxt "field:nereid.website,latest_products_node:"
 msgid "Latest Products Node"
-msgstr "Neueste Artikel"
+msgstr "Letzte Artikel"
 
 msgctxt "field:nereid.website,upcoming_products_node:"
 msgid "Upcoming Products Node"
