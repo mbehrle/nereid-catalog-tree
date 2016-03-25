@@ -125,6 +125,13 @@ class Node(ModelSQL, ModelView):
         return self.name
 
     @classmethod
+    def search_rec_name(cls, name, clause):
+        return ['OR',
+            ('slug',) + tuple(clause[1:]),
+            ('name',) + tuple(clause[1:]),
+            ]
+
+    @classmethod
     def get_template(cls):
         """
         Return templates available for node.
