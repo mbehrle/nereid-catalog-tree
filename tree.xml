@@ -48,7 +48,7 @@ and license terms.
     <record model="ir.action.act_window" id="act_tree_node_tree">
         <field name="name">Tree Nodes</field>
         <field name="res_model">product.tree_node</field>
-        <field name="domain">[('parent', '=', None)]</field>
+        <field name="domain" eval="[('parent', '=', None)]" pyson="1"></field>
     </record>
 
     <record model="ir.action.act_window.view" id="act_tree_node_tree_view1">
@@ -69,20 +69,20 @@ and license terms.
     <record model="ir.action.act_window" id="act_tree_node_list">
         <field name="name">Tree Nodes</field>
         <field name="res_model">product.tree_node</field>
-        <field name="context">{'active_test': False}</field>
+        <field name="context" eval="{'active_test': False}" pyson="1"></field>
     </record>
 
     <record model="ir.action.act_window.domain" id="action_tree_node_view_domain_active">
         <field name="name">Active</field>
         <field name="sequence" eval="10"/>
-        <field name="domain">[('active', '=', True)]</field>
+        <field name="domain" eval="[('active', '=', True)]" pyson="1"></field>
         <field name="act_window" ref="act_tree_node_list"/>
     </record>
 
     <record model="ir.action.act_window.domain" id="action_tree_node_view_domain_disabled">
         <field name="name">Disabled</field>
         <field name="sequence" eval="10"/>
-        <field name="domain">[('active', '=', False)]</field>
+        <field name="domain" eval="[('active', '=', False)]" pyson="1"></field>
         <field name="act_window" ref="act_tree_node_list"/>
     </record>
 
@@ -104,7 +104,7 @@ and license terms.
     <record model="ir.action.act_window" id="act_product_by_tree_node">
         <field name="name">Products By Tree Node</field>
         <field name="res_model">product.product</field>
-        <field name="domain">[('nodes.node', 'in', Eval('active_ids'))]</field>
+        <field name="domain" eval="[('nodes.node', 'in', Eval('active_ids'))]" pyson="1"></field>
     </record>
 
     <record model="ir.action.keyword" id="act_product_by_tree_node_keyword1">
@@ -142,7 +142,7 @@ and license terms.
     <record model="ir.action.act_window" id="act_rearrange_products">
         <field name="name">Rearrange Products</field>
         <field name="res_model">product.product-product.tree_node</field>
-        <field name="domain">[('node', '=', Eval('active_id'))]</field>
+        <field name="domain" eval="[('node', '=', Eval('active_id'))]" pyson="1"></field>
     </record>
 
     <record model="ir.action.keyword" id="act_rearrange_products_keyword1">
