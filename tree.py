@@ -58,13 +58,13 @@ class Node(ModelSQL, ModelView):
     """
     __name__ = "product.tree_node"
 
-    name = fields.Char('Name', required=True, select=True, translate=True)
+    name = fields.Char('Name', required=True, translate=True)
     slug = fields.Char(
-        'Slug', depends=['name'], required=True, select=True, translate=True
+        'Slug', depends=['name'], required=True, translate=True
     )
     type_ = fields.Selection([
         ('catalog', 'Catalog'),
-    ], 'Type', required=True, select=True)
+    ], 'Type', required=True)
     parent = fields.Many2One(
         'product.tree_node', 'Parent', select=True,
         depends=['type_'],
@@ -90,7 +90,7 @@ class Node(ModelSQL, ModelView):
     image_preview = fields.Function(
         fields.Binary('Image Preview'), 'get_image_preview'
     )
-    active = fields.Boolean('Active', select=True)
+    active = fields.Boolean('Active')
     display = fields.Selection([
         ('product.product', 'Product Variants'),
         ('product.template', 'Product Templates'),
@@ -358,7 +358,7 @@ class ProductNodeRelationship(ModelSQL, ModelView):
         domain=[('type_', '=', 'catalog')],
         ondelete='CASCADE', select=True, required=True
     )
-    sequence = fields.Integer('Sequence', select=True, required=True)
+    sequence = fields.Integer('Sequence', required=True)
 
     @staticmethod
     def default_sequence():
