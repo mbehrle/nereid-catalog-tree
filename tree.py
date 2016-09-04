@@ -37,6 +37,7 @@ class Product:
         of the node and send it in the context
         """
         rv = super(Product, cls).render(uri, path)
+        Node = Pool().get('product.tree_node')
 
         node = request.args.get('node', type=int)
         if node and not isinstance(rv, NotFound):
