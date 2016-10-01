@@ -4,8 +4,6 @@ python:
 install:
   - CFLAGS="-O0" pip install lxml
   - pip install flake8 coveralls psycopg2
-  # Temporary till nereid get released
-  - pip install https://github.com/openlabs/nereid/archive/develop.tar.gz
   - python setup.py install
 script:
   - coverage run setup.py test

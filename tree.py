@@ -9,8 +9,6 @@ from trytond.model import ModelView, ModelSQL, fields
 from trytond.exceptions import UserError
 from trytond.pool import Pool, PoolMeta
 from trytond.pyson import Eval
-from trytond.transaction import Transaction
-from trytond import backend
 from sql import Literal
 
 
@@ -39,6 +37,7 @@ class Product:
         of the node and send it in the context
         """
         rv = super(Product, cls).render(uri, path)
+        Node = Pool().get('product.tree_node')
 
         node = request.args.get('node', type=int)
         if node and not isinstance(rv, NotFound):
@@ -391,17 +390,6 @@ class Website:
         'product.tree_node', 'Upcoming Products Node',
         domain=[('type_', '=', 'catalog')]
     )
-
-    @classmethod
-    def __register__(cls, module_name):
-        TableHandler = backend.get('TableHandler')
-        cursor = Transaction().cursor
-        table = TableHandler(cursor, cls, module_name)
-
-        super(Website, cls).__register__(module_name)
-
-        if table.column_exist('root_tree_node'):
-            table.not_null_action('root_tree_node', action='remove')
 
 
 class WebsiteTreeNode(ModelSQL):

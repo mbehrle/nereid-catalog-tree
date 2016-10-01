@@ -5,17 +5,20 @@ from itertools import chain
 
 from lxml import objectify
 import trytond.tests.test_tryton
-from trytond.tests.test_tryton import POOL, USER, DB_NAME, CONTEXT, \
-    test_view, test_depends
+from trytond.tests.test_tryton import (
+    POOL, USER,
+    ModuleTestCase, with_transaction
+)
 from nereid.testing import NereidTestCase
 from trytond.transaction import Transaction
 from trytond.exceptions import UserError
 
 
-class TestTree(NereidTestCase):
+class TestTree(NereidTestCase, ModuleTestCase):
     """
     Test Tree
     """
+    module = 'nereid_catalog_tree'
 
     def setup_defaults(self):
         """
@@ -93,18 +96,7 @@ class TestTree(NereidTestCase):
             'product.jinja': "{{ node and node.name or 'no-node' }}",
         }
 
-    def test_0005_test_view(self):
-        """
-        Test the views
-        """
-        test_view('nereid_catalog_tree')
-
-    def test_007_test_depends(self):
-        """
-        The Depends
-        """
-        test_depends()
-
+    @with_transaction()
     def test_0010_create_product_node_in_tree(self):
         """
         Test if a product can be created which can be
@@ -112,44 +104,44 @@ class TestTree(NereidTestCase):
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            template1, = self.Template.create([values1])
+        template1, = self.Template.create([values1])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product} for product in template1.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product} for product in template1.products
+            ])]
+        }])
 
-            self.assert_(node1)
+        self.assert_(node1)
 
-            # Check if default tree node type is 'catalog'
-            self.assertEqual(node1.type_, 'catalog')
-            # Check if node1 is active by default
-            self.assertTrue(node1.active)
-            # Check if default display is product variant
-            self.assertEqual(node1.display, 'product.product')
+        # Check if default tree node type is 'catalog'
+        self.assertEqual(node1.type_, 'catalog')
+        # Check if node1 is active by default
+        self.assertTrue(node1.active)
+        # Check if default display is product variant
+        self.assertEqual(node1.display, 'product.product')
 
+    @with_transaction()
     def test_0020_create_product_node_with_children(self):
         """
         Test if a product can be created to find
@@ -157,70 +149,70 @@ class TestTree(NereidTestCase):
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            values2 = {
-                'name': 'Product-2',
-                'category': self.category.id,
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-2',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values2 = {
+            'name': 'Product-2',
+            'categories': [('add', [self.category.id])],
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-2',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            template1, template2 = self.Template.create([values1, values2])
+        template1, template2 = self.Template.create([values1, values2])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product} for product in template1.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product} for product in template1.products
+            ])]
+        }])
 
-            self.assert_(node1)
+        self.assert_(node1)
 
-            node2, = Node.create([{
-                'name': 'Node2',
-                'type_': 'catalog',
-                'slug': 'node2',
-                'products': [('create', [
-                    {'product': product} for product in template2.products
-                ])]
-            }])
+        node2, = Node.create([{
+            'name': 'Node2',
+            'type_': 'catalog',
+            'slug': 'node2',
+            'products': [('create', [
+                {'product': product} for product in template2.products
+            ])]
+        }])
 
-            self.assert_(node2)
+        self.assert_(node2)
 
-            Node.write([node2], {
-                'parent': node1
-            })
-            self.assertEqual(node2.parent, node1)
-            self.assertTrue(node2 in node1.children)
-            self.assertEqual(len(node2.children), 0)
+        Node.write([node2], {
+            'parent': node1
+        })
+        self.assertEqual(node2.parent, node1)
+        self.assertTrue(node2 in node1.children)
+        self.assertEqual(len(node2.children), 0)
 
+    @with_transaction()
     def test_0030_nereid_render_method(self):
         """
         Test if the url for the active id of the current node
@@ -228,199 +220,199 @@ class TestTree(NereidTestCase):
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            values2 = {
-                'name': 'Product-2',
-                'category': self.category.id,
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-2',
-                        'displayed_on_eshop': True
-                    }, {
-                        'uri': 'product-21',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values2 = {
+            'name': 'Product-2',
+            'categories': [('add', [self.category.id])],
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-2',
+                    'displayed_on_eshop': True
+                }, {
+                    'uri': 'product-21',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            values3 = {
-                'name': 'Product-3',
-                'category': self.category.id,
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-3',
-                        'displayed_on_eshop': False
-                    }, {
-                        'uri': 'product-3_2',
-                        'active': False,
-                        'displayed_on_eshop': True,
-                    }])
-                ]
-            }
+        values3 = {
+            'name': 'Product-3',
+            'categories': [('add', [self.category.id])],
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-3',
+                    'displayed_on_eshop': False
+                }, {
+                    'uri': 'product-3_2',
+                    'active': False,
+                    'displayed_on_eshop': True,
+                }])
+            ]
+        }
 
-            template1, template2, template3, = self.Template.create([
-                values1, values2, values3
-            ])
+        template1, template2, template3, = self.Template.create([
+            values1, values2, values3
+        ])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product} for product in template1.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product} for product in template1.products
+            ])]
+        }])
 
-            self.assert_(node1)
+        self.assert_(node1)
 
-            node2, = Node.create([{
-                'name': 'Node2',
-                'type_': 'catalog',
-                'slug': 'node2',
-                'display': 'product.template',
-                'products': [('create', [
-                    {'product': product} for product in template2.products
-                ])]
-            }])
+        node2, = Node.create([{
+            'name': 'Node2',
+            'type_': 'catalog',
+            'slug': 'node2',
+            'display': 'product.template',
+            'products': [('create', [
+                {'product': product} for product in template2.products
+            ])]
+        }])
 
-            self.assert_(node2)
+        self.assert_(node2)
 
-            node3, = Node.create([{
-                'name': 'Node3',
-                'type_': 'catalog',
-                'slug': 'node3',
-            }])
+        node3, = Node.create([{
+            'name': 'Node3',
+            'type_': 'catalog',
+            'slug': 'node3',
+        }])
 
-            Node.write([node2], {
-                'parent': node1
-            })
+        Node.write([node2], {
+            'parent': node1
+        })
 
-            Node.write([node3], {
-                'parent': node2
-            })
+        Node.write([node3], {
+            'parent': node2
+        })
 
-            self.assert_(node2)
+        self.assert_(node2)
 
-            app = self.get_app()
+        app = self.get_app()
 
-            with app.test_client() as c:
-                url = 'nodes/{0}/{1}/{2}'.format(
-                    node1.id, node1.slug, 1
-                )
-                rv = c.get(url)
-                self.assertEqual(rv.status_code, 200)
-                # Test is if there are 3 products.
-                # 1 from node1 and 2 from node2
-                # Get the node record by searching it, because current one
-                # is cached.
-                node1, = Node.search([('id', '=', node1.id)])
-                self.assertEqual(
-                    node1.get_products(per_page=10).all_items(),
-                    list(template1.products + template2.products)
-                )
-                self.assertEqual(rv.data[0], '3')
+        with app.test_client() as c:
+            url = 'nodes/{0}/{1}/{2}'.format(
+                node1.id, node1.slug, 1
+            )
+            rv = c.get(url)
+            self.assertEqual(rv.status_code, 200)
+            # Test is if there are 3 products.
+            # 1 from node1 and 2 from node2
+            # Get the node record by searching it, because current one
+            # is cached.
+            node1, = Node.search([('id', '=', node1.id)])
+            self.assertEqual(
+                node1.get_products(per_page=10).all_items(),
+                list(template1.products + template2.products)
+            )
+            self.assertEqual(rv.data[0], '3')
 
-                url = 'nodes/{0}/{1}/{2}'.format(
-                    node2.id, node2.slug, 1
-                )
-                rv = c.get(url)
-                self.assertEqual(rv.status_code, 200)
-                # Test if products length is 1 as display of
-                # node2 is set to 'product.template'
-                node2, = Node.search([('id', '=', node2.id)])
-                self.assertEqual(
-                    Node(node2.id).get_products().all_items(),
-                    [template2]
-                )
-                self.assertEqual(rv.data[0], '1')
+            url = 'nodes/{0}/{1}/{2}'.format(
+                node2.id, node2.slug, 1
+            )
+            rv = c.get(url)
+            self.assertEqual(rv.status_code, 200)
+            # Test if products length is 1 as display of
+            # node2 is set to 'product.template'
+            node2, = Node.search([('id', '=', node2.id)])
+            self.assertEqual(
+                Node(node2.id).get_products().all_items(),
+                [template2]
+            )
+            self.assertEqual(rv.data[0], '1')
 
+    @with_transaction()
     def test_0035_product_render_method(self):
         """
         Check injection of node into template context on product rendering
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            template1, = self.Template.create([values1])
+        template1, = self.Template.create([values1])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product} for product in template1.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product} for product in template1.products
+            ])]
+        }])
 
-            self.assert_(node1)
+        self.assert_(node1)
 
-            app = self.get_app()
+        app = self.get_app()
 
-            with app.test_client() as c:
-                url = '/product/%s' % product.uri
+        with app.test_client() as c:
+            url = '/product/%s' % product.uri
 
-                # With no node argument
-                rv = c.get('%s' % url)
-                self.assertEqual(rv.status_code, 200)
-                self.assertEqual(rv.data, 'no-node')
+            # With no node argument
+            rv = c.get('%s' % url)
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data, 'no-node')
 
-                # With one valid node
-                rv = c.get('%s?node=%d' % (url, node1))
-                self.assertEqual(rv.status_code, 200)
-                self.assertEqual(rv.data, node1.name)
+            # With one valid node
+            rv = c.get('%s?node=%d' % (url, node1))
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data, node1.name)
 
-                # With one invalid node
-                rv = c.get('%s?node=999999' % url)
-                self.assertEqual(rv.status_code, 200)
-                self.assertEqual(rv.data, 'no-node')
+            # With one invalid node
+            rv = c.get('%s?node=999999' % url)
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data, 'no-node')
 
-                # With one invalid node
-                rv = c.get('%s?node=sometext' % url)
-                self.assertEqual(rv.status_code, 200)
-                self.assertEqual(rv.data, 'no-node')
+            # With one invalid node
+            rv = c.get('%s?node=sometext' % url)
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data, 'no-node')
 
+    @with_transaction()
     def test_0040_create_product_with_parent_as_itself(self):
         """
         This test creates a node and sets the product as
@@ -428,41 +420,41 @@ class TestTree(NereidTestCase):
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            template1, = self.Template.create([values1])
+        template1, = self.Template.create([values1])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product} for product in template1.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product} for product in template1.products
+            ])]
+        }])
 
-            self.assert_(node1)
-            self.assertRaises(UserError, Node.write, [node1], {
-                'parent': node1
-            })
+        self.assert_(node1)
+        self.assertRaises(UserError, Node.write, [node1], {
+            'parent': node1
+        })
 
+    @with_transaction()
     def test_0050_product_template_disabled(self):
         """
         Ensure that the products are not listed when the template is
@@ -470,290 +462,289 @@ class TestTree(NereidTestCase):
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            template1, = self.Template.create([values1])
+        template1, = self.Template.create([values1])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product} for product in template1.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product} for product in template1.products
+            ])]
+        }])
 
-            app = self.get_app()
+        app = self.get_app()
 
-            with app.test_client() as c:
-                rv = c.get('nodes/%d/_/1' % node1.id)
-                self.assertEqual(rv.status_code, 200)
-                self.assertEqual(rv.data[0], '1')
+        with app.test_client() as c:
+            rv = c.get('nodes/%d/_/1' % node1.id)
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data[0], '1')
 
-            node1, = Node.search([('id', '=', node1.id)])
-            self.assertEqual(node1.get_products().count, 1)
-            self.assertEqual(len(node1.products), 1)
+        node1, = Node.search([('id', '=', node1.id)])
+        self.assertEqual(node1.get_products().count, 1)
+        self.assertEqual(len(node1.products), 1)
 
-            template1.active = False
-            template1.save()
+        template1.active = False
+        template1.save()
 
-            with app.test_client() as c:
-                rv = c.get('nodes/%d/_/1' % node1.id)
-                self.assertEqual(rv.status_code, 200)
-                self.assertEqual(rv.data[0], '0')
+        with app.test_client() as c:
+            rv = c.get('nodes/%d/_/1' % node1.id)
+            self.assertEqual(rv.status_code, 200)
+            self.assertEqual(rv.data[0], '0')
 
-            node1, = Node.search([('id', '=', node1.id)])
-            self.assertEqual(node1.get_products().count, 0)
-            self.assertEqual(len(node1.products), 1)
+        node1, = Node.search([('id', '=', node1.id)])
+        self.assertEqual(node1.get_products().count, 0)
+        self.assertEqual(len(node1.products), 1)
 
+    @with_transaction()
     def test_0060_make_tree_crumbs(self):
         """
         Test to get breadcrumbs on node template
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            app = self.get_app()
+        self.setup_defaults()
+        app = self.get_app()
 
-            parent_node, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'parent': self.default_node,
-            }])
+        parent_node, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'parent': self.default_node,
+        }])
 
-            child_node, = Node.create([{
-                'name': 'Node2',
-                'type_': 'catalog',
-                'slug': 'node2',
-                'parent': parent_node,
-            }])
+        child_node, = Node.create([{
+            'name': 'Node2',
+            'type_': 'catalog',
+            'slug': 'node2',
+            'parent': parent_node,
+        }])
 
-            with app.test_client() as c:
-                rv = c.get('nodes/%d/node2' % child_node.id)
-                self.assertEqual(
-                    rv.data[3:], "Home, root, Node1, Node2"
-                )
+        with app.test_client() as c:
+            rv = c.get('nodes/%d/node2' % child_node.id)
+            self.assertEqual(
+                rv.data[3:], "Home, root, Node1, Node2"
+            )
 
+    @with_transaction()
     def test_0070_tree_sitemap_index(self):
         """
         Assert that the sitemap index returns 1 result
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
-            app = self.get_app()
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
+        app = self.get_app()
 
-            values1 = {
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-1',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values1 = {
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-1',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            values2 = {
-                'name': 'Product-2',
-                'category': self.category.id,
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [{
-                        'uri': 'product-2',
-                        'displayed_on_eshop': True
-                    }])
-                ]
-            }
+        values2 = {
+            'name': 'Product-2',
+            'categories': [('add', [self.category.id])],
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [{
+                    'uri': 'product-2',
+                    'displayed_on_eshop': True
+                }])
+            ]
+        }
 
-            template1, template2 = self.Template.create([values1, values2])
+        template1, template2 = self.Template.create([values1, values2])
 
-            node1, = Node.create([{
-                'name': 'Node1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': product}
-                    for product in template1.products + template2.products
-                ])]
-            }])
+        node1, = Node.create([{
+            'name': 'Node1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': product}
+                for product in template1.products + template2.products
+            ])]
+        }])
 
-            self.assert_(node1)
+        self.assert_(node1)
 
-            with app.test_client() as c:
-                rv = c.get('/sitemaps/tree-index.xml')
-                xml = objectify.fromstring(rv.data)
-                self.assertTrue(xml.tag.endswith('sitemapindex'))
-                self.assertEqual(len(xml.getchildren()), 1)
+        with app.test_client() as c:
+            rv = c.get('/sitemaps/tree-index.xml')
+            xml = objectify.fromstring(rv.data)
+            self.assertTrue(xml.tag.endswith('sitemapindex'))
+            self.assertEqual(len(xml.getchildren()), 1)
 
-                rv = c.get(
-                    xml.sitemap.loc.pyval.split('localhost/', 1)[-1]
-                )
-                xml = objectify.fromstring(rv.data)
-                self.assertTrue(xml.tag.endswith('urlset'))
-                self.assertEqual(len(xml.getchildren()), 2)
+            rv = c.get(
+                xml.sitemap.loc.pyval.split('localhost/', 1)[-1]
+            )
+            xml = objectify.fromstring(rv.data)
+            self.assertTrue(xml.tag.endswith('urlset'))
+            self.assertEqual(len(xml.getchildren()), 2)
 
+    @with_transaction()
     def test_0090_product_sequence(self):
         """
         Ensure that the products are displayed according to the sequence
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            template1, = self.Template.create([{
-                'name': 'Product-1',
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [
-                        {
-                            'uri': 'product-1',
-                            'displayed_on_eshop': True
-                        },
-                        {
-                            'uri': 'product-2',
-                            'displayed_on_eshop': True
-                        },
-                        {
-                            'uri': 'product-3',
-                            'displayed_on_eshop': True
-                        },
-                        {
-                            'uri': 'product-4',
-                            'displayed_on_eshop': True
-                        },
-                        {
-                            'uri': 'product-5',
-                            'displayed_on_eshop': True
-                        },
-                    ])
-                ]
-            }])
+        template1, = self.Template.create([{
+            'name': 'Product-1',
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [
+                    {
+                        'uri': 'product-1',
+                        'displayed_on_eshop': True
+                    },
+                    {
+                        'uri': 'product-2',
+                        'displayed_on_eshop': True
+                    },
+                    {
+                        'uri': 'product-3',
+                        'displayed_on_eshop': True
+                    },
+                    {
+                        'uri': 'product-4',
+                        'displayed_on_eshop': True
+                    },
+                    {
+                        'uri': 'product-5',
+                        'displayed_on_eshop': True
+                    },
+                ])
+            ]
+        }])
 
-            prod1, prod2, prod3, prod4, prod5 = template1.products
+        prod1, prod2, prod3, prod4, prod5 = template1.products
 
-            node1, node2 = Node.create([{
-                'name': 'Node 1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'products': [('create', [
-                    {'product': prod4, 'sequence': 10},
-                    {'product': prod1, 'sequence': 20},
-                ])]
-            }, {
-                'name': 'Node 2',
-                'type_': 'catalog',
-                'slug': 'node2',
-                'products': [('create', [
-                    {'product': prod3, 'sequence': 10},
-                    {'product': prod2, 'sequence': 20},
-                    {'product': prod1, 'sequence': 5},
-                ])]
-            }])
+        node1, node2 = Node.create([{
+            'name': 'Node 1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'products': [('create', [
+                {'product': prod4, 'sequence': 10},
+                {'product': prod1, 'sequence': 20},
+            ])]
+        }, {
+            'name': 'Node 2',
+            'type_': 'catalog',
+            'slug': 'node2',
+            'products': [('create', [
+                {'product': prod3, 'sequence': 10},
+                {'product': prod2, 'sequence': 20},
+                {'product': prod1, 'sequence': 5},
+            ])]
+        }])
 
-            self.assert_(node1)
-            self.assert_(node2)
+        self.assert_(node1)
+        self.assert_(node2)
 
-            node1, = Node.search([('id', '=', node1.id)])
-            node2, = Node.search([('id', '=', node2.id)])
+        node1, = Node.search([('id', '=', node1.id)])
+        node2, = Node.search([('id', '=', node2.id)])
 
-            self.assertEqual(
-                node1.get_products().items(),
-                [prod4, prod1]
-            )
-            self.assertEqual(
-                node2.get_products().items(),
-                [prod1, prod3, prod2]
-            )
+        self.assertEqual(
+            node1.get_products().items(),
+            [prod4, prod1]
+        )
+        self.assertEqual(
+            node2.get_products().items(),
+            [prod1, prod3, prod2]
+        )
 
+    @with_transaction()
     def test_0100_product_distinct(self):
         """
         Ensure that template pagination really works
         """
         Node = POOL.get('product.tree_node')
 
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.setup_defaults()
-            uom, = self.Uom.search([], limit=1)
+        self.setup_defaults()
+        uom, = self.Uom.search([], limit=1)
 
-            templates = self.Template.create([{
-                'name': 'Product-%s' % x,
-                'category': self.category.id,
-                'type': 'goods',
-                'list_price': Decimal('10'),
-                'cost_price': Decimal('5'),
-                'default_uom': uom.id,
-                'products': [
-                    ('create', [
-                        {
-                            'uri': 'product-%s-%s' % (x, v),
-                            'displayed_on_eshop': True
-                        } for v in xrange(0, 10)
-                    ])
+        templates = self.Template.create([{
+            'name': 'Product-%s' % x,
+            'categories': [('add', [self.category.id])],
+            'type': 'goods',
+            'list_price': Decimal('10'),
+            'cost_price': Decimal('5'),
+            'default_uom': uom.id,
+            'products': [
+                ('create', [
+                    {
+                        'uri': 'product-%s-%s' % (x, v),
+                        'displayed_on_eshop': True
+                    } for v in xrange(0, 10)
+                ])
+            ]
+        } for x in xrange(0, 10)])
+
+        node1, = Node.create([{
+            'name': 'Node 1',
+            'type_': 'catalog',
+            'slug': 'node1',
+            'display': 'product.product',
+            'products': [
+                ('create', [
+                    {'product': prod.id, 'sequence': 10}
+                    for prod in chain(*[t.products for t in templates])
                 ]
-            } for x in xrange(0, 10)])
+                )
+            ]
+        }])
 
-            node1, = Node.create([{
-                'name': 'Node 1',
-                'type_': 'catalog',
-                'slug': 'node1',
-                'display': 'product.product',
-                'products': [
-                    ('create', [
-                        {'product': prod.id, 'sequence': 10}
-                        for prod in chain(*[t.products for t in templates])
-                    ]
-                    )
-                ]
-            }])
+        self.assert_(node1)
 
-            self.assert_(node1)
+        node1, = Node.search([('id', '=', node1.id)])
 
-            node1, = Node.search([('id', '=', node1.id)])
+        self.assertEqual(len(node1.get_products().all_items()), 100)
+        self.assertEqual(node1.get_products().count, 100)
+        self.assertEqual(len(node1.get_products().items()), 10)
+        self.assertEqual(len(node1.get_products(page=10).items()), 10)
 
-            self.assertEqual(len(node1.get_products().all_items()), 100)
-            self.assertEqual(node1.get_products().count, 100)
-            self.assertEqual(len(node1.get_products().items()), 10)
-            self.assertEqual(len(node1.get_products(page=10).items()), 10)
+        node1.display = 'product.template'
+        node1.save()
 
-            node1.display = 'product.template'
-            node1.save()
-
-            self.assertEqual(len(node1.get_products().all_items()), 10)
-            self.assertEqual(len(node1.get_products().items()), 10)
+        self.assertEqual(len(node1.get_products().all_items()), 10)
+        self.assertEqual(len(node1.get_products().items()), 10)
 
 
 def suite():
