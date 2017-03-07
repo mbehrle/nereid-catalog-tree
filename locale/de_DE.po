@@ -250,7 +250,7 @@ msgstr "Untergeordnet (Knotenpunkte)"
 
 msgctxt "view:product.tree_node:"
 msgid "Description"
-msgstr "Bezeichnung"
+msgstr "Beschreibung"
 
 msgctxt "view:product.tree_node:"
 msgid "Image"
