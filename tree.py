@@ -176,6 +176,11 @@ class Node(ModelSQL, ModelView):
         NodeTable = Node.__table__()
 
         if self.display == 'product.product':
+            order_by = (RelTable.sequence.asc,)
+            if getattr(Product, 'variant_name', None):
+                order_by += (ProductTable.variant_name.asc,)
+            else:
+                order_by += (TemplateTable.name.asc,)
             query = ProductTable.join(
                 TemplateTable,
                 condition=(TemplateTable.id == ProductTable.template)
@@ -193,11 +198,12 @@ class Node(ModelSQL, ModelView):
                     (NodeTable.left >= Literal(self.left)) &
                     (NodeTable.right <= Literal(self.right))
                 ),
-                order_by=RelTable.sequence.asc
+                order_by=order_by
             )
             return Product, query, ProductTable
 
         elif self.display == 'product.template':
+            order_by = (RelTable.sequence.asc, TemplateTable.name.asc)
             query = TemplateTable.join(
                 ProductTable,
                 condition=(TemplateTable.id == ProductTable.template)
@@ -215,7 +221,7 @@ class Node(ModelSQL, ModelView):
                     (NodeTable.left >= Literal(self.left)) &
                     (NodeTable.right <= Literal(self.right))
                 ),
-                order_by=RelTable.sequence.asc
+                order_by=order_by
             )
             return ProductTemplate, query, TemplateTable
 
