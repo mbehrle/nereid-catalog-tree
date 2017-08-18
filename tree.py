@@ -93,6 +93,7 @@ class Node(ModelSQL, ModelView):
     display = fields.Selection([
         ('product.product', 'Product Variants'),
         ('product.template', 'Product Templates'),
+        ('product.tree_node', 'Sub Collections'),
     ], 'Display', required=True)
     template = fields.Selection(
         'get_template', 'Template', required=True
