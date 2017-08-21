@@ -68,7 +68,7 @@ msgstr "Knotenpunkt"
 
 msgctxt "field:product.product-product.tree_node,product:"
 msgid "Product"
-msgstr "Artikel"
+msgstr "Variante"
 
 msgctxt "field:product.product-product.tree_node,rec_name:"
 msgid "Name"
@@ -136,11 +136,11 @@ msgstr "Übergeordnet (Knotenpunkt)"
 
 msgctxt "field:product.tree_node,products:"
 msgid "Products"
-msgstr "Artikel"
+msgstr "Varianten"
 
 msgctxt "field:product.tree_node,products_per_page:"
 msgid "Products per Page"
-msgstr "Artikel pro Seite"
+msgstr "Einträge pro Seite"
 
 msgctxt "field:product.tree_node,rec_name:"
 msgid "Name"
@@ -160,7 +160,7 @@ msgstr "Slug"
 
 msgctxt "field:product.tree_node,template:"
 msgid "Template"
-msgstr "Artikel"
+msgstr "Vorlage"
 
 msgctxt "field:product.tree_node,type_:"
 msgid "Type"
@@ -176,11 +176,11 @@ msgstr "Letzte Änderung durch"
 
 msgctxt "model:ir.action,name:act_product_by_tree_node"
 msgid "Products By Tree Node"
-msgstr "Artikel nach Knotenpunkt"
+msgstr "Varianten nach Knotenpunkt"
 
 msgctxt "model:ir.action,name:act_rearrange_products"
 msgid "Rearrange Products"
-msgstr "Artikel neuordnen"
+msgstr "Varianten neuordnen"
 
 msgctxt "model:ir.action,name:act_tree_node_list"
 msgid "Tree Nodes"
@@ -214,7 +214,7 @@ msgstr "Wurzelknotenpunkte auf einer Website"
 
 msgctxt "model:product.product-product.tree_node,name:"
 msgid "This is the relation between a node in a tree"
-msgstr "Verbindung zwischen Artikeln und Knotenpunkten"
+msgstr "Varianten - Knotenpunkte"
 
 msgctxt "model:product.tree_node,name:"
 msgid "Tree Node"
