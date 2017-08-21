@@ -228,6 +228,10 @@ msgctxt "selection:product.tree_node,display:"
 msgid "Product Variants"
 msgstr "Varianten"
 
+msgctxt "selection:product.tree_node,display:"
+msgid "Sub Collections"
+msgstr "Untergeordnete Sammlungen"
+
 msgctxt "selection:product.tree_node,type_:"
 msgid "Catalog"
 msgstr "Katalog"
