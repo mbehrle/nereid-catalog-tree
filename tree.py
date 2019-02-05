@@ -42,7 +42,7 @@ class Product:
         node = request.args.get('node', type=int)
         if node and not isinstance(rv, NotFound):
             try:
-                rv.context['node'], = Node.search([('id', '=', node)])
+                rv.context['node'] = Node(node)
             except ValueError:
                 pass
 
